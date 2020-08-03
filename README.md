@@ -4,6 +4,12 @@
 
 In the current implementation of the hematuria monitor, a white LED is mounted opposite to an AS7262 visible light spectrophotometer module, passing *incident* light through a catheter outflow tube clipped inside the spectrometer shroud, resulting in a reading of a quantity of *transmitted* light at the photodiode module. 
 
+<p float="left">
+  <img src="https://github.com/malyalar/spectral-noninvasive-hgb-estimation/blob/master/IMG_20200705_122330_crop.jpg", height="250" />
+  <img src="https://github.com/malyalar/spectral-noninvasive-hgb-estimation/blob/master/IMG_20200607_172259_crop.jpg", height="250" />
+  <img src="https://github.com/malyalar/spectral-noninvasive-hgb-estimation/blob/master/IMG_20200607_173534_crop.jpg", height="250" />
+</p>
+
 Ordinarily, in a prototypical spectrophotometer, concentration for solutes in solvent (here, blood in saline) is calculated using the Beer-Lambert law: 
 
 $A=log_{10}(I_{o}/I_{t})=\epsilon * c * l$, where: 
