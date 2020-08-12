@@ -1,95 +1,74 @@
-## Non-invasive real-time spectrophotometric quantification of ex-vivo hemoglobinuria with one-step calibration.
+# Hematuria monitor
 
-### Current device implementation and justification
+## An open source solution for management and automation of continuous bladder irrigation using off-the-shelf consumer electronics.
+Continuous bladder irrigation (CBI), or bladder washout, is a procedure to prevent blood clot formation after urological procedures (prostatic resection, kidney stone removal, et cetera). Most CBI is conducted with a Foley catheter and is monitored continuously by a nurse or aide to ensure that the flow rate through the bladder is sufficient. If more blood is seen, the flow rate is typically increased; drip rate is decreased as the color resolves.
 
-In the current implementation of the hematuria monitor, a white LED is mounted opposite to an AS7262 visible light spectrophotometer module, passing *incident* light through a catheter outflow tube clipped inside the spectrometer shroud, resulting in a reading of a quantity of *transmitted* light at the photodiode module. 
+The administration of CBI requires intensive nursingsupport for proper administration and appropriate physician ordering for safety. [citation](https://digitalcommons.wustl.edu/cgi/viewcontent.cgi?article=4392&context=open_access_pubs) Unofrtunately, complete reliance on manual monitoring is falliable and we believe the process can be augmented through digitized color recognition and wireless updates to the CBI-supervising provider.
+
+## Description
+
+This open hematuria monitor (hereby OHM), fully assembled, is an Arduino-controlled device that measures saline flow from the Foley catheter input, through the bladder, and to the outflow collection bag with a load sensor (HX711), and analyzes the absorptivity of outflow irrigate at multiple wavelengths with a visible-light spectrophotometer (AS7262) to non-invasively detect hemoglobin (oxygenated or deoxygenated) in the irrigate. It integrates these two datasets to estimate a variety of statistics about the CBI process, and projects integrated data to a plot.ly webserver with an onboard WiFi chip (ESP8266). OR it can send updates to a custom-built local radio pager using a 315mHz (or of any bandwidth chosen) transmitter/receiver combo. 
 
 <p float="left">
-  <img src="https://github.com/malyalar/spectral-noninvasive-hgb-estimation/blob/master/IMG_20200705_122330_crop.jpg", height="210" />
-  <img src="https://github.com/malyalar/spectral-noninvasive-hgb-estimation/blob/master/IMG_20200607_172259_crop.jpg", height="210" />
-  <img src="https://github.com/malyalar/spectral-noninvasive-hgb-estimation/blob/master/IMG_20200607_173534_crop.jpg", height="210" />
+  <img src="https://github.com/malyalar/auto-hematuria-monitor/master/gallery/IMG_20200705_122330_crop.jpg", height="210" />
+  <img src="https://github.com/malyalar/auto-hematuria-monitor/blob/master/gallery/IMG_20200607_172259_crop.jpg", height="210" />
+  <img src="https://github.com/malyalar/auto-hematuria-monitor/blob/master/gallery/IMG_20200607_173534_crop.jpg", height="210" />
 </p>
 
-Ordinarily, in a prototypical spectrophotometer, concentration for solutes in solvent (here, blood in saline) is calculated using the Beer-Lambert law: 
 
-$A=log_{10}(I_{o}/I_{t})=\epsilon * c * l$, where: 
+Currently, the device can measure and display estimates of:
+- hematuria grade (or blood volume loss per minute, assuming hematocrit of 40);
+- total saline used, and rate of collection bag filling;
+- [PENDING] it can display these parameters to a Blynk webserver that can be accessed with a cellphone.
+- [PENDING] it can send this data to a wireless display/pager over a distance of 
 
-$A$ is **absorbance** (here re-expressed as the log of the ratio between incident and transmitted light quantities), $l$ is the **length of the path** traveled by the incident light before reaching the photodiode, $c$ is the **concentration of the solvent** in $M$, and $\epsilon$ is the **molar extinction coefficient** of the solute for light at a particular wavelength in $M^{-1}cm^{-1}$.
+The device also can display alarms when:
+- the collection bag is nearing capacity, or when the inflow saline is running out;
+- if blood loss (as volume or hemoglobin) is excessive, and;
+- [PENDING] send an SMS/email (if configured to do so) to your nurses'/residents' phones.
 
-If the molar extinction coefficient, path length, and transmittance/absorbance for a solute is known, concentration can be calculated directly (assuming no confounding second solutes are present). Otherwise, a lookup table associating observed absorbances with particular concentrations, i.e. a calibration curve, can be used to inter- or extrapolate solute concentration. In the current embodiment however, there are two concerns that disqualify the use of these more simple methods of quantification. 
+Future functionality for the device will include motor control to automatically titrate catheter inflow as the estimated rate of blood loss increases, although this is challenging since there may be some clinical considerations other than the observed rate of hematuria that may influence the chosen irrigation rate. Verification and validation processes for controlling the flow rate are also more intense and become harder to justify with respect to medical device regulations.
 
-**The first problem:** as some sections of outflow catheter tubing leading to the outflow bag must necessarily be exposed to light, and because the spectral power distribution of white LEDs is not always well characterized, and moreoever varies with the chosen LED, its drive current, individual efficiency, manufacturing process, and attached resistor, it is difficult to physically control appropriately for the original incident quantity of light between seperate builds of the device. The following method of quantification is intended to avoid an overly extensive calibration process between device builds.
+## Assembly
 
-**The second problem:** the determination of concentration of hemoglobin content in tubing is confounded by the different absorption spectra of oxygenated and deoxygenated hemoglobin (hereafter Hb-O2 and Hb, respectively). However, the ratio of Hb-O2 and Hb, i.e. SpO2, is not already known. In order to control for this confound, two *isosbestic* points in the visible spectrum for Hb-O2 and Hb are used to calculate the absorbance of hemoglobin. 
+CAD files are *mostly* parametric and can be modified to accommodate larger/smaller Arduino/other microprocessor units, buttons, displays, etc. The .stl files used in our device build are provided as well, but work only with the specific buttons, switches, and displays we've purchased. Current calibration based on absorbance through a Baxter Y-type TUR/Bladder Irrigation Set.
 
-The method herein still requires some determination of the average ratio of incident light strength at the chosen observed wavelengths. However, this is a one-step simple calibration process and is more robust to changes in ambient lighting, variable resistance and irradiance at or from the LED, and thus does not require each user to construct their own calibration curve with serial dilutions. 
-
-### Method of quantification of hemoglobinuria
-
-1) $C_{hgb-total} = C_{Hb} + C_{Hb-O^{2}}$
-
-2) $ \%\ transmittance = I_{t}/I_{o} * 100\%$
-
-3) $Absorbance = -log_{10}(\%\ transmittance)$
-
-4) $Absorbance =\epsilon * concentration * path\ length$
-
-Where $I_{o}$ describes the quantity of light *transmitted* from the LED mounted opposite the photodiode module entering the sample, and $I_{t}$ describes the quantity of light exiting the sample and registering on the photodiode.
-
-First recognize that the total absorbance at a given wavelength, here chosen at 500nm ("blue"), is the sum of the dual absorption of HbO2 and Hb. 
-
-$A_{500nm} = \epsilon_{HbO2-500nm} * c_{HbO2-500nm}*l + \epsilon_{Hb-500nm} * c_{Hb-500nm}*l_{500}$
-
-Because 500nm is roughly an isosbestic point for the absorption spectra for HbO2 and Hb, [see citation](https://omlc.org/spectra/hemoglobin/summary.html), $\epsilon_{HbO2-500nm}$ and $\epsilon_{Hb-500nm}$ are equivalent (20932.8 $\simeq$ 20862.0). Absorbance can also be re-expressed in terms of log transmittance calculated from the spectrophotometer output. Therefore:
-
-$log_{10}(\frac{I_{o}}{100*I_{t}}) = (\epsilon_{Hb\ total-500nm} * c_{Hb\ total})*l_{500}$
-
-$I_{t}$, $\epsilon_{Hb\ total-500nm}$, and $l_{500}$ are known from reference values or the spectrophotometer result, leaving $I_{o}$ as the remaining unknown before determining the total concentration of hemoglobin. While ordinary spectrophotometric or colorimetric devices can assume a known $I_{o}$, the construction of the hematuria monitor in its current implementation leaves $I_{o}$ as variable in different builds/environments. Without reliable incident light data due to confounding from ambient light, variable resistance at the LED, and other factors discussed in the introduction, a system of equations can be built to fix $I_{o}$ using the same formula at another wavelength of light, here chosen at 570nm ("green").  
-
-$log_{10}(\frac{I_{o}}{100*I_{t}}) = (\epsilon_{Hb\ total-570nm} * c_{Hb\ total})*l_{570}$
-
-$log_{10}(I_{o}) = (\epsilon_{Hb\ total-570nm} * c_{Hb\ total})*l_{570} + log_{10}({100*I_{t}})$
+### Bill of Materials
+- HX711 amplifier circuit: $8
+- HX711 10kg load cell: $10
+- 240x240 TFT 1.53" display: $25
+- Arduino (any Arduino type reprogrammable microcontroller will work; a mini-style microcontroller will be cheaper): $10
+- Momentary buttons: $5
+- AS7262 visible light sensor: $25
+- ESP8266 WiFi breakout: $12
+- voltage level regulator (for ESP8266): $10
+- Voltage stepper chip (for ESP8266): $5
+- Miscellaneous jumper cables, usb male/female ends (these are quite varied, but most commercial usb cables can be spliced for the purposes of this project.): $10
+- **TOTAL : $130 before tax**; not including 3d filament, 3d printer, misc. consumables such as solder, etc.
 
 
-570nm is another roughly isosbestic point for HbO2 and Hb (44496 $\simeq$ 45072) in the visible spectrum.
+## Operation
+Every loop (operating at approximately 3s intervals) the load sensor tracks weight and change in weight, and the spectrophotometer tracks absorbance at six spectral channels, spaced at 450, 500, 550, 570, 600 and 650 nm. Hemoglobin is the primary analyte of interest, and while commercial spectrophotometry-based blood-testing devices (for example, pulse oximeters and non-invasive hematocrit asPsessors) typically use the IR or near-IR spectrum (taking advantage of the massive divergence in absorbance spectra between deoxygenated and oxygenated hemoglobin), the present device estimates hemoglobin concentrations within the visible spectrum only. (Purchasing an alternate, equivalently expensive spectrophotometer breakout will give access to the IR and NIR ranges.) The [AS7262 6-channel Visible Spectral ID device](https://cdn.sparkfun.com/assets/f/b/c/c/f/AS7262.pdf) comes with lifetime-calibrated sensing with minimal drift over time or temperature. The quality of the readouts from the spectrophotometer is apparently dependent on the [gain (1x, 3.7x, 16x, and 64x) and integration time (maximum 182ms)](https://adafruit.github.io/Adafruit_AS726x/html/class_adafruit___a_s726x.html#aefb04c53faed2c942ce44297acaea2a7) selected for the device, as detailed [page 7 of the AS726x-iSPI Evaluation Kit GUI user guide](https://ams.com/documents/20143/36005/AS726x_UG000340_4-00.pdf/98588d96-a807-d8ec-5251-370a0be3069b). 
 
-At this stage, if $I_{o}$ can be set equal between the chosen wavelengths, a system of equations can be built to isolate for total concentration of hemoglobin. Ratios of transmittance of light from a white LED at 500nm and 570nm are easy to determine. Through a blank tube, averaged over ten measurements, the ratio in our current build of the spectrophotometer clip is approximately 1.04 (1.04153); i.e. the counts per power per unit area generated by the light hitting the photodiode for 500nm is 1.04 times greater than it is for 570nm transmitting light through a blank control tube, in our specific build of the device. 
+The program sketch operates as follows. Taking ten measurements a second at the load sensor and ten measurements a second at the spectrophotometer, the device builds a moving average of five measurements for both, and compares to the moving averages 1 second ago to calculate rates of change. Using the beer-lambert law and a preset calibration curve using Baxter Y-type clear tubing (you will have to recalibrate if using different tubing through the spectrophotometer device), the sketch multiplies current absorbance (correlated to a concentration in mol(of HgB)/L) by a irrigate flow rate (mL/sec) to get a flow rate of amount fo HgB (mol/sec). When mols/sec HgB exceeds a predetermined amount (adjustable in GUI), an alert is sent to the supervising nurse/resident to adjust irrigation flow.
 
-If (5) $I_{o,\ 500nm} = 1.04*I_{o,\ 570nm}$, then:
+## Blood content determination
+Using the AS7262 or any consumer vis-light spectrophotometer module to estimate hgb content and concentration at the outflow tube brings several challenges. Hemoglobin and deoxyhemoglobin have different absorption spectra and molar extinction coefficients, roughly equivalent at certain points in the vis-light spectrum measured by the AS7262 (i.e. isobestic), but vastly different at other points. White LEDs used to test transmittance through the outflow tubing have different spectral power distributions, making no algorithm for HgB determination not necessarily a one-build-fits-all solution. For example, two different LEDs both considered 'white-light' LEDs may transmit very different amounts of purple-wavelength light, such that using absolute values of purple light absorbance at the photodiode useless between two builds. Thus, every build of this device may have to undergo calibration with a 'blank' outflow tube of saline to ensure that blood content estimates are meaningful and useful for monitoring CBI (if not necessarily perfectly accurate). If built to specification, the device has functionality on button press to go into a 'calibration mode' to allow the user to prepare and calibrate with their own 'blank' saline-filled tubing.
 
-(6) $[(\epsilon_{Hb\ total-500nm} * c_{Hb\ total})*l_{500} + log_{10}(100*I_{t,\ 500nm})] = 1.04*[(\epsilon_{Hb\ total-570nm} * c_{Hb\ total})*l_{570} + log_{10}(100*I_{t,\ 570nm})]$
+![](img/2020-07-12-21-24-36.png)
 
-Where $c_{Hb\ total}$ can be trivially isolated.
-
-It may appear that path length $l$ can be factored out, but the path length of the incident light is dependent on the specific wavelength of the light, as different light wavelengths have different refractive indices. The physical  distance between source and  detector cannot be used directly  as the path length because the light  inside a medium gets reflected and doesn’t pass through a straight path. Optical distance $T_{f}$ is defined as the product of refractive index of medium, $n$, and the geometric distance travelled by the light, $d$.
-
-$T_{f}=n*d$
-
-Isolating for $C_{hb\ total}$, and replacing path lengths corrected for refraction [citation](https://www.osapublishing.org/ao/abstract.cfm?uri=ao-45-12-2838) and molar extinction coefficients with actual values:
+important reference: [Development of white LED illuminants for colorimetry and recommendation of white LED reference spectrum for photometry](https://iopscience.iop.org/article/10.1088/1681-7575/aacae7) Image not from this paper.
 
 
+The error at the photodiode panel, with units reported in uW/cm^2, is +/-12%. 
 
-$C_{hgb-total}=\frac{log(I_{t,\ 500nm}/(1.04*I_{t-570nm}))}{(44784*T_{f-500nm}-20897*T_{f-570nm})}$
+Furthermore, a clip-on design cannot reasonably be light-isolated without excessively taping the tubing or extending the spectrophotometer shroud. Part of the hemoglobin determination calculation described herein is intended to correct for the slight differences in ambient light between night and day or between well vs. poorly lit rooms, which may bleed into the photodiode shroud.
 
-x-axis contains mL quantity of thawed, heparinized pig's blood diluted into 10mLs tap water, converted into mmol/L estimates of [Hgb]. y-axis is the formula estimate of hemoglobinuria in mmol/L.
-![Spectrometer estimate of hemoglobinuria regressed against manual Hgb estimate from assumed hematocrit](img/agreementlinreg.png)
+![](img/2020-07-11-00-19-59.png)
 
-
-x-axis contains mL quantity of thawed, heparinized pig's blood diluted into 10mLs tap water. y-axis is the formula estimate of hemoglobinuria in mmol/L.
-![Spectrometer estimate of hemoglobinuria against volume/volume concentration of pig's blood:](img/mLcorrespondence.png)
-
-
-The last graph is a perfect line, as the y-axis is a manual estimate of hemoglobinuria using an assumed 7-mmol/L concentration of heme units in blood (four times the HgB concentration, as there are four hemes to a HgB). The x-axis is the mLs of blood diluted by 10mL tap water, a volume/volume dilution. 
-![Manual estimate of hemoglobinuria against volume/volume concentration of pig's blood:](img/molartomL.png)
+![](img/2020-07-11-12-05-16.png)
+![](img/2020-07-11-12-05-39.png)
 
 
-While there is exceptional linear agreement between the method proposed from spectrophotometric analysis and the manual estimate of hemoglobin concentration, the slopes of the individual estimates are different. 
+## Determining hemoglobinuria quantitatively with no lookup table
 
-
-### Limitations
-
-#### Use of a single polychromatic white-LED light source.
-
-A potential limitation of the use of LEDs in spectrophotometry is in the relatively broad spectral bandwidth of light emitted. It is often stated that obedience to Beer's law only strictly applies when measurements are made with monochromatic source radiation. In practise, the light emitted from many spectrophotometers is not truly monochromatic but a narrow range of wavelengths [12, 13]; thus, the traditional, functional distinction between colourimetry and spectrophotometry is blurred. The narrower the spectral bandwidth of a light source, the greater the ability of the spectrophotometer to distinguish between molecules present with similar absorbance spectra, and so the resolution also increases, allowing for an accurate determination of the molar absorptivity constant [12, 14]. Narrow spectral bandwidth is obviously vital for some applications but not all. Indirect methods, in which a signal molecule is formed that has a high molar absorptivity and/or is generated in high concentration, are less likely to be affected by relatively wide spectral bandwidths than direct spectrophotometric analysis of complex solutions containing molecules with similar absorbance spectra at similar concentrations/molar absorptivities. [citation](https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.3000321#sec004)
-
-Trvially, an alternative embodiment of the device can be constructed using LEDs made to emit at 500nm and 570nm more specifically. 
