@@ -10,7 +10,7 @@ The administration of CBI requires intensive nursingsupport for proper administr
 This open hematuria monitor (hereby OHM), fully assembled, is an Arduino-controlled device that measures saline flow from the Foley catheter input, through the bladder, and to the outflow collection bag with a load sensor (HX711), and analyzes the absorptivity of outflow irrigate at multiple wavelengths with a visible-light spectrophotometer (AS7262) to non-invasively detect hemoglobin (oxygenated or deoxygenated) in the irrigate. It integrates these two datasets to estimate a variety of statistics about the CBI process, and projects integrated data to a plot.ly webserver with an onboard WiFi chip (ESP8266). OR it can send updates to a custom-built local radio pager using a 315mHz (or of any bandwidth chosen) transmitter/receiver combo. 
 
 <p float="left">
-  <img src="hhttps://github.com/malyalar/auto-hematuria-monitor/blob/master/gallery/IMG_20200705_122330_crop.jpg", height="210" />
+  <img src="https://github.com/malyalar/auto-hematuria-monitor/blob/master/gallery/IMG_20200705_122330_crop.jpg", height="210" />
   <img src="https://github.com/malyalar/auto-hematuria-monitor/blob/master/gallery/IMG_20200607_172259_crop.jpg", height="210" />
   <img src="https://github.com/malyalar/auto-hematuria-monitor/blob/master/gallery/IMG_20200607_173534_crop.jpg", height="210" />
 </p>
