@@ -22,9 +22,9 @@ Future functionality for the device may include motor control to automatically t
 
 ## Assembly
 
-Assembly guides and electrical schematics are pending. 
+Assembly guides are pending. 
 
-CAD files are parametric and can be modified to accommodate larger/smaller Arduino/other microprocessor units, buttons, displays, etc. The .stl files used in our device build are provided as well, but work only with the specific buttons, switches, and displays we've purchased. Current calibration based on absorbance through a Baxter Y-type TUR/Bladder Irrigation Set.
+CAD files are parametric and can be modified to accommodate larger/smaller Arduino/other microprocessor units, buttons, displays, etc. The .stl files used in our device build are provided as well, but work only with the specific buttons, switches, and displays we've purchased. Specific electrical schematics are available but subject to change. Current calibration is based on absorbance through a Baxter Y-type TUR/Bladder Irrigation Set.
 
 ## Operation
 Every loop (operating at approximately 3s intervals) the load sensor tracks weight and change in weight, and the spectrophotometer tracks absorbance at six spectral channels, spaced at 450, 500, 550, 570, 600 and 650 nm. Hemoglobin is the primary analyte of interest. The chosen spectral sensing unit for this device, the [AS7262 6-channel Visible Spectral ID device](https://cdn.sparkfun.com/assets/f/b/c/c/f/AS7262.pdf) comes with lifetime-calibrated sensing with minimal drift over time or temperature.
