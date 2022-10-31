@@ -1,15 +1,7 @@
 
 
 /******************* 
- * Date: May 22 2020
- * Author: Rohit Malyala
- * 
- * MIT License
- * Diagrams and reference material (c) 2020 Rohit Malyala
- * 
- * Completed in accordance with the requirements of MEDD419 FLEX of the UBC MD Undergraduate curriculum
- * Funded by Vancouver Coastal Health and VGH Urology, supervised by Dr. Christopher Nguan
- * 
+* Conventional identifying information is anonymized for the purposes of submission.
 *******************/
 
 // ---------
@@ -137,12 +129,6 @@ void setup(void) {
     This shows immediately current sensor data as raw text. It shows the weight sensed on the load sensor; it shows the rate of
     change in the load sensor data (and builds a "flow rate" out of it), and it shows the spectrophotometer (calibrated)
     readings in each of the six measured wavelengths.
-
-    screenUpdate_weightgraphs()
-    This screen shows two graphs of the moving averages for current weight, and for the rate of change in the weight.
-
-    screenUpdate_hematuriagraphs()
-    This screen shows the estimated rate of blood loss.
 */
 
 void loop() {
@@ -311,17 +297,6 @@ void calcDisplayElapsedTime(){
 }
 
 void colorGrade_hematuria(){
-
-  // the color calculation uses RATIOS between the calibrated sensor values rather than specific 
-  // intervals of wattages/area according to a lookup table. The justification for this is that 
-  // the clip-on sensor isn't fully light isolated. external light can get in through the sides
-  // of exposed tubing, also powering the photodiode.
-
-  // however, the chosen ratios are calibrated according to the white LED used in this project.
-  // NOT EVERY WHITE LED EMITS AT THE SAME WAVELENGTHS, AND AT THE SAME POWER. This is ESPECIALLY
-  // NOT THE CASE if you decide to use a DIFFERENT resistor (67K used in our implementation). While
-  // it is likely the device will *work* it may not quite match up with a clinician estimate of what
-  // "gross" or "high grade" hematuria should look like. 
   
   if(purple_ratio>=6){
     tft.print(F("Grade 0, no visible hematuria"));
