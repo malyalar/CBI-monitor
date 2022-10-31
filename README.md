@@ -7,9 +7,7 @@ Continuous bladder irrigation (CBI), or bladder washout, is a procedure to preve
 This hematuria monitor ("HM") is an Arduino-controlled device that measures saline flow from the Foley catheter input, through the bladder, and to the outflow collection bag with a load sensor (HX711), and analyzes the absorptivity of outflow irrigate at multiple wavelengths with a visible-light spectrophotometer (AS7262) to non-invasively detect hematuria in the irrigate. It integrates these two datasets to estimate a variety of statistics about the CBI process. In it's current implementation, it can send updates to a custom-built local radio pager (enclosure CAD available, but schematics pending) using a 315mHz transmitter/receiver combo. 
 
 <p float="left">
-  <img src="https://github.com/malyalar/auto-hematuria-monitor/blob/master/gallery/IMG_20200705_122330_crop.jpg", height="210" />
-  <img src="https://github.com/malyalar/auto-hematuria-monitor/blob/master/gallery/IMG_20200607_172259_crop.jpg", height="210" />
-  <img src="https://github.com/malyalar/auto-hematuria-monitor/blob/master/gallery/IMG_20200607_173534_crop.jpg", height="210" />
+  <img src="https://github.com/malyalar/auto-hematuria-monitor/blob/master/gallery/figure_2.jpg", height="210" />
 </p>
 
 
